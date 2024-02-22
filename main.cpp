@@ -1,4 +1,6 @@
-int main()
+#include "vector2.cpp"
+
+int main() 
 {
 
 }
