@@ -9,6 +9,8 @@
 #include<chrono>
 #include<atomic>
 #include<processthreadsapi.h>
+#ifndef THREAD_POOL_HPP
+#define THREAD_POOL_HPP
 
 class Task
 {
@@ -121,3 +123,5 @@ bool ThreadPool::push_job(const Task& job)
     queue_cv.notify_one();
     return true;
 }
+
+#endif /* THREAD_POOL_HPP */
