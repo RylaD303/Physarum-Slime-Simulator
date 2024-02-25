@@ -9,12 +9,13 @@ class Tile
     int current_hue;
 
 public:
+    Tile();
     static inline int get_max_hue() 
     {
         return MAX_HUE;
     }
     int get_current_hue();
-    void set_current_hue_to_max();
+    void refresh_hue();
     void update();
 };
 

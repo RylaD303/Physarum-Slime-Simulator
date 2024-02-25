@@ -1,10 +1,16 @@
 #include "tile.hpp"
+
+Tile::Tile()
+{
+    this->current_hue = 0;
+}
+
 int Tile::get_current_hue()
 { 
     return current_hue;
 }
 
-void Tile::set_current_hue_to_max()
+void Tile::refresh_hue()
 {
     this->current_hue = get_max_hue();
 }

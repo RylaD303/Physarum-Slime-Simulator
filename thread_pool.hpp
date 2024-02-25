@@ -1,21 +1,17 @@
 #pragma once
-#include<string>
-#include<thread>
-#include<mutex>
-#include<condition_variable>
-#include<array>
-#include<queue>
-#include<iostream>
-#include<chrono>
-#include<atomic>
-#include<processthreadsapi.h>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <array>
+#include <queue>
+#include <chrono>
+#include <atomic>
+#include <processthreadsapi.h>
+
+#include "task.hpp"
+
 #ifndef THREAD_POOL_HPP
 #define THREAD_POOL_HPP
-
-class Task
-{
-    virtual void operator()(){};
-};
 
 class ThreadPool
 {
@@ -30,11 +26,13 @@ private:
     void thread_loop(const int index);
 
 public:
-    ThreadPool(int number_of_workers, bool threads_prioritised = false);
+    ThreadPool(int number_of_workers);
     void start();
     void stop();
     bool push_job(const Task& job);
     bool is_busy();
+    void wait_work();
+
 };
 
 
@@ -110,7 +108,8 @@ void ThreadPool::thread_loop(int thread_number)
         {
             return;
         }
-        task.fill(thread_number + 1);
+        task.set_thread_id(thread_number);
+        task();
     }
 }
 
