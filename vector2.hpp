@@ -16,6 +16,11 @@ struct Vector2
     static double distance(const Vector2<NumericType>& first, const Vector2<NumericType>& second);
     double distance_to(const Vector2<NumericType>& other) const;
 
+    double length() const;
+
+    void normalize();
+    Vector2<NumericType> normalized() const;
+
     bool operator==(const Vector2<NumericType>& other) const;
     bool operator!=(const Vector2<NumericType>& other) const;
 
@@ -51,6 +56,35 @@ double Vector2<NumericType>::distance(const Vector2<NumericType>& first, const V
     return sqrt(x1 * x1 + y1 * y1);
 }
 
+
+template<typename NumericType>
+double Vector2<NumericType>::distance_to(const Vector2<NumericType>& other) const
+{
+    return Vector2<NumericType>::distance(&this, other);
+}
+
+template<typename NumericType>
+double Vector2<NumericType>::length() const
+{
+    return sqrt(this->x*this->x + this->y*this->y);
+}
+
+template<typename NumericType>
+void Vector2<NumericType>::normalize()
+{
+    double length = this->length();
+    this->x /= length;
+    this->y /= length;
+}
+
+template<typename NumericType>
+Vector2<NumericType> Vector2<NumericType>::normalized() const
+{
+    Vector2<NumericType> result(this);
+    result.normalize();
+    return result;
+}
+
 template<typename NumericType>
 bool Vector2<NumericType>::operator==(const Vector2<NumericType>& other) const
 {
@@ -61,12 +95,6 @@ template<typename NumericType>
 bool Vector2<NumericType>::operator!=(const Vector2<NumericType>& other) const
 {
     return !(*this == other);
-}
-
-template<typename NumericType>
-double Vector2<NumericType>::distance_to(const Vector2<NumericType>& other) const
-{
-    return Vector2<NumericType>::distance(&this, other);
 }
 
 template<typename NumericType>

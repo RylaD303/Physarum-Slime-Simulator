@@ -3,7 +3,8 @@
 #include <vector>
 
 #include "vector2.hpp"
-#include "tile.hpp"
+#include "Grid.hpp"
+
 class SlimeParticle
 {
     Vector2<double> position;
@@ -12,23 +13,16 @@ class SlimeParticle
     double forward_sensor_distance;
     double side_sensor_angle;
 
-    std::vector<std::vector<Tile>>& tiles;
+    Grid& grid;
     int rows;
     int cols;
 
 public:
-    SlimeParticle(std::vector<std::vector<Tile>>& tiles);
+    SlimeParticle(Grid& grid, Vector2<double> starting_position);
 
-    void set_position(Vector2<double> position)
-    {
-        this->position = position;
-    }
-    
-    void motor_stage()
-    {
+    void set_position(Vector2<double> position);
 
-    }
-
+    void motor_stage();
     void sensory_stage();
 };
 
