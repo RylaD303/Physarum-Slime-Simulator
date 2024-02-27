@@ -20,9 +20,12 @@ struct Grid
     bool is_position_in_bounds(const Vector2<NumericType>& vector) const;
 
     template<typename NumericType>
-    void refresh_hue_on_position(const Vector2<NumericType>& vector);
+    void deposit_chemoattractant_on_position(const Vector2<NumericType>& vector, double chemoattractant);
 
-    void update_rows(int starting_row = 0, int ending_row = -1);
+    template<typename NumericType>
+    double get_chemoattractant_on_position(const Vector2<NumericType>& vector) const;
+
+    void decay_rows(int starting_row = 0, int ending_row = -1);
 
     template<typename NumericType>
     Vector2<NumericType> Grid::cast_ray_in_grid(Vector2<NumericType> start, Vector2<NumericType> ray);

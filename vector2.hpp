@@ -21,6 +21,9 @@ struct Vector2
     void normalize();
     Vector2<NumericType> normalized() const;
 
+    void rotate(double angle_degrees);
+    Vector2<NumericType> rotated(double angle_degrees) const;
+
     bool operator==(const Vector2<NumericType>& other) const;
     bool operator!=(const Vector2<NumericType>& other) const;
 
@@ -84,6 +87,26 @@ Vector2<NumericType> Vector2<NumericType>::normalized() const
     result.normalize();
     return result;
 }
+
+template<typename NumericType>
+void Vector2<NumericType>::rotate(double angle_degrees)
+{
+    double angle_radians = angle_degrees * M_PI / 180.0;
+    double cos_angle = std::cos(angle_radians);
+    double sin_angle = std::sin(angle_radians);
+
+    this->x = static_cast<NumericType>(x * cos_angle - y * sin_angle);
+    this->y = static_cast<NumericType>(x * sin_angle + y * cos_angle);
+}
+
+template<typename NumericType>
+Vector2<NumericType> Vector2<NumericType>::rotated(double angle_degrees) const
+{
+    Vector2<NumericType> result(this);
+    result.rotate(angle_degrees);
+    return Vector2<NumericType>(x_new, y_new);
+}
+
 
 template<typename NumericType>
 bool Vector2<NumericType>::operator==(const Vector2<NumericType>& other) const

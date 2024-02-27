@@ -9,19 +9,20 @@ class SlimeParticle
 {
     Vector2<double> position;
     Vector2<double> direction;
-    double speed;
-    double forward_sensor_distance;
-    double side_sensor_angle;
 
+
+    double speed = 1;
+    double sensor_offset_distance = 9;
+    double left_right_sensor_angle = 45;
+    double chemoattachant_deposition_factor = 3;
+    double rotation_angle = 5;
     Grid& grid;
-    int rows;
-    int cols;
 
 public:
     SlimeParticle(Grid& grid, Vector2<double> starting_position);
 
     void set_position(Vector2<double> position);
-
+    void set_direction(Vector2<double> direction);
     void motor_stage();
     void sensory_stage();
 };

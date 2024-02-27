@@ -6,17 +6,13 @@
 class Tile
 {
 #define MAX_HUE 10
-    int current_hue;
+    double current_chemoattractant_factor;
 
 public:
     Tile();
-    static inline int get_max_hue() 
-    {
-        return MAX_HUE;
-    }
-    int get_current_hue();
-    void refresh_hue();
-    void update();
+    double get_chemoattractant_value() const;
+    void deposit_chemoattractant_value(int value);
+    void decay();
 };
 
 #endif /* TILE_PARTICLE_HPP*/

@@ -26,7 +26,7 @@ bool Grid::is_position_in_bounds(const Vector2<NumericType>& vector) const
 }
 
 template<typename NumericType>
-void Grid::refresh_hue_on_position(const Vector2<NumericType>& vector)
+void Grid::deposit_chemoattractant_on_position(const Vector2<NumericType>& vector, double chemoattractant)
 {
     /* don't forget vectors are reversed in graph */
     int row = std::floor(vector.y);
@@ -37,10 +37,25 @@ void Grid::refresh_hue_on_position(const Vector2<NumericType>& vector)
         throw std::runtime_error("Bad index for hue refresh in grid.");
     }
     
-    tiles[row][col].refresh_hue();
+    this->tiles[row][col].deposit_chemoattractant_value(chemoattractant);
 }
 
-void Grid::update_rows(int starting_row = 0, int ending_row = -1)
+template<typename NumericType>
+double Grid::get_chemoattractant_on_position(const Vector2<NumericType>& vector) const
+{
+    /* don't forget vectors are reversed in graph */
+    int row = std::floor(vector.y);
+    int col = std::floor(vector.x);
+
+    if (!is_index_in_bounds(row, col))
+    {
+       return 0;
+    }
+
+    return this->tiles[row][col].get_chemoattractant_value();
+}
+
+void Grid::decay_rows(int starting_row = 0, int ending_row = -1)
 {
     if (ending_row < starting_row)
     {
@@ -51,11 +66,10 @@ void Grid::update_rows(int starting_row = 0, int ending_row = -1)
     {
         for (int j = 0; j < this->columns; j++)
         {
-            this->tiles[i][j].update();
+            this->tiles[i][j].decay();
         }
     }
 }
-
 
 template<typename NumericType>
 void calculate_remaining_ray_axis(NumericType distance_to_wall, Vector2<NumericType>& position, Vector2<NumericType>& ray, bool is_x_val = true)

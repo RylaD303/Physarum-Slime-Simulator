@@ -2,23 +2,24 @@
 
 Tile::Tile()
 {
-    this->current_hue = 0;
+    this->current_chemoattractant_factor = 0;
 }
 
-int Tile::get_current_hue()
-{ 
-    return current_hue;
-}
-
-void Tile::refresh_hue()
+double Tile::get_chemoattractant_value() const
 {
-    this->current_hue = get_max_hue();
+    return this->current_chemoattractant_factor;
 }
 
-void Tile::update()
+
+void Tile::deposit_chemoattractant_value(int value)
 {
-    if (this->current_hue > 0)
+    this->current_chemoattractant_factor = value;
+}
+
+void Tile::decay()
+{
+    if (this->current_chemoattractant_factor > 0)
     {
-        current_hue--;
+        current_chemoattractant_factor-= 0.1;
     }
 }
