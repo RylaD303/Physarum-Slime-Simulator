@@ -6,11 +6,10 @@
 #include <queue>
 #include <chrono>
 #include <atomic>
-#include <processthreadsapi.h>
 
 #include "task.hpp"
 
-#ifndef THREAD_POOL_HPP
+#ifndef THREAD_POOL_HPP 
 #define THREAD_POOL_HPP
 
 class ThreadPool
@@ -18,7 +17,7 @@ class ThreadPool
 private:
     unsigned int number_of_workers;
     std::vector<std::thread> workers;
-    std::queue<Task> jobs;
+    std::queue<Task*> jobs;
     std::mutex queue_mutex;
     std::condition_variable queue_cv;
     bool terminating;
@@ -29,7 +28,7 @@ public:
     ThreadPool(int number_of_workers);
     void start();
     void stop();
-    bool push_job(const Task& job);
+    bool schedule(Task* job);
     bool is_busy();
     void wait_work();
 
@@ -91,7 +90,7 @@ void ThreadPool::thread_loop(int thread_number)
 {
     while(true)
     {
-		Task task;
+		Task* task;
 		{
 			std::unique_lock<std::mutex> lock(queue_mutex);
 			queue_cv.wait(lock, [this] {return this->terminating || !this->jobs.empty();});
@@ -108,12 +107,12 @@ void ThreadPool::thread_loop(int thread_number)
         {
             return;
         }
-        task.set_thread_id(thread_number);
-        task();
+        task->set_thread_id(thread_number);
+        (*task)();
     }
 }
 
-bool ThreadPool::push_job(const Task& job)
+bool ThreadPool::schedule(Task* job)
 {
 	{
 		std::unique_lock<std::mutex> lock(queue_mutex);

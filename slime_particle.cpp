@@ -1,4 +1,5 @@
 #include "slime_particle.hpp"
+#include "utils.hpp"
 #include <random>
 
 SlimeParticle::SlimeParticle(Grid& grid, Vector2<double> starting_position) : grid(grid)
@@ -49,11 +50,7 @@ void SlimeParticle::sensory_stage()
     else if ((front_sensor_read_value < left_sensor_read_value) &&
              (front_sensor_read_value < right_sensor_read_value))
     {
-        std::random_device rd;
-        std::default_random_engine e1(rd());
-        std::uniform_int_distribution<int> uniform_dist(0, 1);
-
-        int random_number = uniform_dist(e1);
+        int random_number = generate_random_number(0, 1);
         int rotation_degrees = random_number == 0 ? rotation_angle : -rotation_angle;
 
         this->direction.rotate(rotation_degrees);
@@ -66,5 +63,5 @@ void SlimeParticle::sensory_stage()
     {
         this->direction.rotate(-rotation_angle);
     }
-    /* Just stay on the right path. */
+    /* Else just stay on the right path. */
 }

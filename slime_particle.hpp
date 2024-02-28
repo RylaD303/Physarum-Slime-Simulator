@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "vector2.hpp"
-#include "Grid.hpp"
+#include "grid.hpp"
 
 class SlimeParticle
 {
