@@ -1,6 +1,8 @@
 #ifndef VECTOR2_HPP
 #define VECTOR2_HPP
+
 #include <iostream>
+#include <cmath>
 #include <type_traits>
 
 template<typename NumericType>
@@ -33,9 +35,9 @@ struct Vector2
     Vector2<NumericType> operator*(const NumericType scalar) const;
     void operator+=(const Vector2<NumericType>& other);
     void operator-=(const Vector2<NumericType>& other);
+    void operator*=(const NumericType scalar);
 
 };
-#endif /* VECTOR2_HPP */
 
 
 template<typename NumericType>
@@ -44,6 +46,7 @@ Vector2<NumericType>::Vector2()
     this->x = 0;
     this->y = 0;
 }
+
 template<typename NumericType>
 Vector2<NumericType>::Vector2(NumericType x, NumericType y)
 {
@@ -83,7 +86,7 @@ void Vector2<NumericType>::normalize()
 template<typename NumericType>
 Vector2<NumericType> Vector2<NumericType>::normalized() const
 {
-    Vector2<NumericType> result(this);
+    Vector2<NumericType> result(*this);
     result.normalize();
     return result;
 }
@@ -102,9 +105,9 @@ void Vector2<NumericType>::rotate(double angle_degrees)
 template<typename NumericType>
 Vector2<NumericType> Vector2<NumericType>::rotated(double angle_degrees) const
 {
-    Vector2<NumericType> result(this);
+    Vector2<NumericType> result(*this);
     result.rotate(angle_degrees);
-    return Vector2<NumericType>(x_new, y_new);
+    return result;
 }
 
 
@@ -157,3 +160,12 @@ void Vector2<NumericType>::operator-=(const Vector2<NumericType>& other)
     this->x -= other.x;
     this->y -= other.y;
 }
+
+template<typename NumericType>
+void Vector2<NumericType>::operator*=(const NumericType scalar)
+{
+    this->x *= scalar;
+    this->y *= scalar;
+}
+
+#endif /* VECTOR2_HPP */

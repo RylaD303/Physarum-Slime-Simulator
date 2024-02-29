@@ -2,6 +2,7 @@
 #define SLIME_PARTICLE_HPP
 #include <vector>
 
+#include "utils.hpp"
 #include "vector2.hpp"
 #include "grid.hpp"
 

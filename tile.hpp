@@ -1,5 +1,5 @@
-#ifndef TILE_PARTICLE_HPP
-#define TILE_PARTICLE_HPP
+#ifndef TILE_HPP
+#define TILE_HPP
 
 #include "vector2.hpp"
 
@@ -15,4 +15,4 @@ public:
     void decay();
 };
 
-#endif /* TILE_PARTICLE_HPP*/
+#endif /* TILE_HPP*/

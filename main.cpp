@@ -9,7 +9,6 @@
 #include "slime_particle.hpp"
 #include "grid.hpp"
 #include "slime_tasks.hpp"
-#include "utils.hpp"
 
 double simulate(Grid& grid, int number_of_workers, int number_of_slime_particles)
 {
@@ -55,13 +54,12 @@ double simulate(Grid& grid, int number_of_workers, int number_of_slime_particles
     }
 
     /* Simulate behaviour*/
-    int steps = 10000000;
+    int steps = 1;
     ThreadPool thread_pool(number_of_workers);
 
     std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 
     thread_pool.start();
-
     for (int i = 0; i < steps; i++) 
     {
         for (int j = 0; j < number_of_workers; j++)
@@ -87,7 +85,9 @@ double simulate(Grid& grid, int number_of_workers, int number_of_slime_particles
     std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = end - start;
 
-    return duration.count();
+    double time_to_finish =  duration.count();
+
+    return time_to_finish;
 }
 
 void run_grid_simulation(std::pair<int, int> resolution, std::vector<int>& workers, std::vector<int>& slime_particle_percentages)
@@ -98,13 +98,17 @@ void run_grid_simulation(std::pair<int, int> resolution, std::vector<int>& worke
 
     for (int i = 0, perc_size = slime_particle_percentages.size(); i < perc_size; i++)
     {
-
+        
         for (int j = 0, worker_size = workers.size(); j < worker_size; j++)
         {
             int slime_particle_percentage = slime_particle_percentages[i];
             int number_of_slime_particles = resolution.second*resolution.first*slime_particle_percentage/100;
 
+            std::cout << "starting simulation " << i << ":" << j << " with " << number_of_slime_particles << " particles"<< std::endl;
+
             time_results[j][i] = simulate(grid, workers[j], number_of_slime_particles);
+
+            std::cout << "reaching 7"<< std::endl;
         }
     }
 

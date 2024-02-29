@@ -1,6 +1,4 @@
 #include "slime_particle.hpp"
-#include "utils.hpp"
-#include <random>
 
 SlimeParticle::SlimeParticle(Grid& grid, Vector2<double> starting_position) : grid(grid)
 {
