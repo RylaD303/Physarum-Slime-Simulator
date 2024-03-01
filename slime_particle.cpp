@@ -8,7 +8,7 @@ SlimeParticle::SlimeParticle(Grid& grid, Vector2<double> starting_position) : gr
 
 void SlimeParticle::set_position(Vector2<double> position)
 {
-    if (!(this->grid.is_position_in_bounds(this->position)))
+    if (!this->grid.is_position_in_bounds(this->position))
     {
         throw std::runtime_error("Setting position not in grid.");
     }

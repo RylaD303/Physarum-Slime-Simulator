@@ -5,7 +5,7 @@ bool ThreadPool::is_busy()
     bool pool_busy;
     {
         std::unique_lock<std::mutex> lock(queue_mutex);
-        pool_busy = !jobs.empty();
+        pool_busy = (!jobs.empty()) || (this->currently_working_tasks > 0);
     }
     return pool_busy;
 }
@@ -22,6 +22,7 @@ ThreadPool::ThreadPool(int number_of_workers)
 {
     this->terminating = false;
     this->number_of_workers = number_of_workers;
+    this->currently_working_tasks = 0;
 }
 
 void ThreadPool::start()
@@ -65,6 +66,7 @@ void ThreadPool::thread_loop(int thread_number)
 			task = jobs.front();
 			jobs.pop();
 			queue_cv.notify_one();
+            this->currently_working_tasks++;
 		}
         if (terminating == true)
         {
@@ -72,6 +74,7 @@ void ThreadPool::thread_loop(int thread_number)
         }
         task->set_thread_id(thread_number);
         (*task)();
+        this->currently_working_tasks--;
     }
 }
 

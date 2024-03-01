@@ -8,7 +8,6 @@
 #include <queue>
 #include <chrono>
 #include <atomic>
-
 #include "task.hpp"
 
 class ThreadPool
@@ -17,9 +16,10 @@ private:
     unsigned int number_of_workers;
     std::vector<std::thread> workers;
     std::queue<Task*> jobs;
+    std::atomic<int> currently_working_tasks;
     std::mutex queue_mutex;
     std::condition_variable queue_cv;
-    bool terminating;
+    std::atomic<bool> terminating;
 
     void thread_loop(const int index);
 

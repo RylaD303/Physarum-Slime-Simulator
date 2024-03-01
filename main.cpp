@@ -10,130 +10,141 @@
 #include "grid.hpp"
 #include "slime_tasks.hpp"
 
-double simulate(Grid& grid, int number_of_workers, int number_of_slime_particles)
+// Function to initialize slime particles
+void initialize_slime_particles(Grid& grid, std::vector<SlimeParticle>& slime_particles, int number_of_slime_particles) 
 {
-    /* Initial arrays */
-    std::vector<TaskMotorStageParticles> motor_stage_tasks;
-    motor_stage_tasks.reserve(number_of_workers);
-
-    std::vector<TaskSensoryStageParticles> sensory_stage_tasks;
-    sensory_stage_tasks.reserve(number_of_workers);
-
-    std::vector<TaskDecayRowsGrid> rows_grid;
-    rows_grid.reserve(number_of_workers);
-    
-    std::vector<SlimeParticle> slime_particles;
     slime_particles.reserve(number_of_slime_particles);
-
-
-    /* Create slime particles*/
-    for (int i = 0; i < number_of_slime_particles; ++i)
+    for (int i = 0; i < number_of_slime_particles; ++i) 
     {
         slime_particles.emplace_back(grid, Vector2<double>(0, 0));
         slime_particles[i].set_direction(Vector2<double>(generate_random_number(), generate_random_number()));
     }
+}
 
+// Function to initialize tasks for thread
+void initialize_tasks(Grid& grid, std::vector<TaskMotorStageParticles>& motor_stage_tasks,
+                     std::vector<TaskSensoryStageParticles>& sensory_stage_tasks,
+                     std::vector<TaskDecayRowsGrid>& rows_grid,
+                     std::vector<SlimeParticle>& slime_particles, int number_of_workers, int number_of_slime_particles) 
+{
+    motor_stage_tasks.reserve(number_of_workers);
+    sensory_stage_tasks.reserve(number_of_workers);
+    rows_grid.reserve(number_of_workers);
 
-    /* Initialise tasks for thread */
-    int particle_task_factor = number_of_slime_particles/number_of_workers;
-    int rows_task_factor = grid.tiles.size()/number_of_workers;
+    int particle_task_factor = number_of_slime_particles / number_of_workers;
+    int rows_task_factor = grid.tiles.size() / number_of_workers;
 
-    for (int i = 0, size = number_of_workers; i < number_of_workers; i++)
+    for (int i = 0; i < number_of_workers; i++) 
     {
         motor_stage_tasks.emplace_back(slime_particles,
-                                       i*particle_task_factor,
-                                       i != number_of_workers - 1 ? (i+1)*particle_task_factor : number_of_slime_particles);
+                                       i * particle_task_factor,
+                                       i != number_of_workers - 1 ? (i + 1) * particle_task_factor : number_of_slime_particles);
 
         sensory_stage_tasks.emplace_back(slime_particles,
-                                         i*particle_task_factor,
-                                         i != number_of_workers - 1 ? (i+1)*particle_task_factor : number_of_slime_particles);
+                                         i * particle_task_factor,
+                                         i != number_of_workers - 1 ? (i + 1) * particle_task_factor : number_of_slime_particles);
 
         rows_grid.emplace_back(grid,
-                               i*rows_task_factor,
-                               i != number_of_workers - 1 ? (i+1)*rows_task_factor : grid.tiles.size());
+                               i * rows_task_factor,
+                               i != number_of_workers - 1 ? (i + 1) * rows_task_factor : grid.tiles.size());
     }
+}
 
-    /* Simulate behaviour*/
-    int steps = 1;
-    ThreadPool thread_pool(number_of_workers);
-
+// Function to simulate behavior
+double simulate_behavior(ThreadPool& thread_pool, std::vector<TaskMotorStageParticles>& motor_stage_tasks,
+                        std::vector<TaskSensoryStageParticles>& sensory_stage_tasks,
+                        std::vector<TaskDecayRowsGrid>& rows_grid, int number_of_workers,
+                        int steps) 
+{
     std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 
     thread_pool.start();
     for (int i = 0; i < steps; i++) 
     {
-        for (int j = 0; j < number_of_workers; j++)
+        for (int j = 0; j < number_of_workers; j++) 
         {
             thread_pool.schedule(&(motor_stage_tasks[j]));
         }
         thread_pool.wait_work();
 
-        for (int j = 0; j < number_of_workers; j++)
+        for (int j = 0; j < number_of_workers; j++) 
         {
             thread_pool.schedule(&(sensory_stage_tasks[j]));
         }
         thread_pool.wait_work();
 
-        for (int j = 0; j < number_of_workers; j++)
+        for (int j = 0; j < number_of_workers; j++) 
         {
             thread_pool.schedule(&(rows_grid[j]));
         }
         thread_pool.wait_work();
-
     }
+    thread_pool.stop();
 
     std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = end - start;
 
-    double time_to_finish =  duration.count();
-
-    return time_to_finish;
+    return duration.count();
 }
 
-void run_grid_simulation(std::pair<int, int> resolution, std::vector<int>& workers, std::vector<int>& slime_particle_percentages)
+// Main simulation function
+double simulate(Grid& grid, std::vector<SlimeParticle>& slime_particles, int number_of_workers, int number_of_slime_particles, int steps) 
+{
+    ThreadPool thread_pool(number_of_workers);
+    std::vector<TaskMotorStageParticles> motor_stage_tasks;
+    std::vector<TaskSensoryStageParticles> sensory_stage_tasks;
+    std::vector<TaskDecayRowsGrid> rows_grid;
+
+    initialize_tasks(grid, motor_stage_tasks, sensory_stage_tasks, rows_grid, slime_particles, number_of_workers, number_of_slime_particles);
+
+    return simulate_behavior(thread_pool, motor_stage_tasks, sensory_stage_tasks, rows_grid, number_of_workers, steps);
+}
+
+// Function to run grid simulation
+void run_grid_simulation(const std::pair<int, int>& resolution, const std::vector<int>& workers, const std::vector<int>& slime_particle_percentages) 
 {
     Grid grid = Grid(resolution.second, resolution.first);
-
     std::vector<std::vector<double>> time_results(workers.size(), std::vector<double>(slime_particle_percentages.size()));
 
-    for (int i = 0, perc_size = slime_particle_percentages.size(); i < perc_size; i++)
+    for (size_t i = 0; i < slime_particle_percentages.size(); i++) 
     {
-        
-        for (int j = 0, worker_size = workers.size(); j < worker_size; j++)
+        for (size_t j = 0; j < workers.size(); j++) 
         {
             int slime_particle_percentage = slime_particle_percentages[i];
-            int number_of_slime_particles = resolution.second*resolution.first*slime_particle_percentage/100;
+            int number_of_slime_particles = resolution.second * resolution.first * slime_particle_percentage / 100;
 
-            std::cout << "starting simulation " << i << ":" << j << " with " << number_of_slime_particles << " particles"<< std::endl;
-
-            time_results[j][i] = simulate(grid, workers[j], number_of_slime_particles);
-
-            std::cout << "reaching 7"<< std::endl;
+            std::vector<SlimeParticle> slime_particles;
+            initialize_slime_particles(grid, slime_particles, number_of_slime_particles);
+            time_results[j][i] = simulate(grid, slime_particles, workers[j], number_of_slime_particles, 10);
         }
     }
 
-    std::cout << std::setw(10) << "Workers";
-    for (int percentage : slime_particle_percentages)
+    std::cout << "Resolution: " << resolution.first << "x" << resolution.second << std::endl;
+
+    std::cout << std::setw(15) << "Workers";
+    for (int percentage : slime_particle_percentages) 
     {
-        std::cout << std::setw(10) << percentage << "%";
+        std::cout << std::setw(14) << percentage << std::setw(1) << "%";
     }
     std::cout << std::endl;
 
-    for (int j = 0, worker_size = workers.size(); j < worker_size; j++) 
+    for (size_t j = 0; j < workers.size(); j++) 
     {
-        std::cout << std::setw(10) << workers[j];
-        for (int i = 0, perc_size = slime_particle_percentages.size(); i < perc_size; i++)
+        std::cout << std::setw(15) << workers[j];
+        for (size_t i = 0; i < slime_particle_percentages.size(); i++) 
         {
-            std::cout << std::setw(10) << time_results[j][i];
+            std::cout << std::setw(15) << time_results[j][i];
         }
         std::cout << std::endl;
     }
-    
+
+    std::cout << std::endl;
+    std::cout << std::endl;
 }
 
-int main() 
-{
 
+void compute()
+{
     int number_of_workers;
     std::vector<int> workers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     std::vector<int> slime_particle_percentages = {1, 2, 3, 5, 8, 10, 12, 15};
@@ -149,4 +160,9 @@ int main()
     {
         run_grid_simulation(grid_sizes[i], workers, slime_particle_percentages);
     }
+}
+
+int main() 
+{
+    compute();
 }
